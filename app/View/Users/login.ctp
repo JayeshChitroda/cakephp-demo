@@ -1,4 +1,4 @@
-//app/View/Users/login.ctp
+<?php //app/View/Users/login.ctp ?>
 
 <div class="users form">
 <?php echo $this->Session->flash('auth'); ?>

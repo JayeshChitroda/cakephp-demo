@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Application level Controller
  *
@@ -18,7 +19,6 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-
 App::uses('Controller', 'Controller');
 
 /**
@@ -31,41 +31,11 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-    public $components = array(
-        'Session',
-        'Auth' => array(
-            'loginRedirect' => array(
-                'controller' => 'posts',
-                'action' => 'index'
-            ),
-            'logoutRedirect' => array(
-                'controller' => 'pages',
-                'action' => 'display',
-                'home'
-            ),
-            'authorize' => array('Controller') // Added this line
-        )
-    );
-
-    public function isAuthorized($user) {
-        // Admin can access every action
-        if (isset($user['role']) && $user['role'] === 'admin') {
-            return true;
-        }
-
-        // Default deny
-        return false;
-    }
-    
-    public function beforeFilter() {
-//        $this->Auth->allow('index', 'view');
-        if (!$this->Auth->user('id')) {
-            $this->redirect('/users/login');
-        }
-    }
     
     public function checkLogin() {
-        
+        $data = $this->Session->read('User');
+        if (empty($data)) {
+            return $this->redirect(array('controller'=>'users','action' => 'login'));
+        }
     }
-    
 }

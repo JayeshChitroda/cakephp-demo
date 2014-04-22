@@ -9,6 +9,7 @@ class PostsController extends AppController {
     public $helpers = array('Html', 'Form');
        
     public function index() {
+        $this->checkLogin();
         $this->set('posts', $this->Post->find('all'));
     }
     
@@ -29,8 +30,7 @@ class PostsController extends AppController {
     
      public function add() {
         if ($this->request->is('post')) {
-//            $this->Post->create();
-            $this->request->data['Post']['user_id'] = $this->Auth->user('id');
+            $this->Post->create();
             if ($this->Post->save($this->request->data)) {
                 $this->Session->setFlash(__('Your post has been saved.'));
                 return $this->redirect(array('action' => 'index'));
@@ -52,7 +52,6 @@ class PostsController extends AppController {
 
         if ($this->request->is(array('post', 'put'))) {
             $this->Post->id = $id;
-            $this->request->data['Post']['user_id'] = $this->Auth->user('id');
             if ($this->Post->save($this->request->data)) {
                 $this->Session->setFlash(__('Your post has been updated.'));
                 return $this->redirect(array('action' => 'index'));

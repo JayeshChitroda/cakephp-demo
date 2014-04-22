@@ -2,31 +2,36 @@
 // app/Controller/UsersController.php
 class UsersController extends AppController {
 
-    public function beforeFilter() {
-        parent::beforeFilter();
-        // Allow users to register and logout.
-        $this->Auth->allow('add', 'logout');
-    }
-
     public function login() {
-        if ($this->request->is('post')) {
-            if ($this->Auth->login()) {
-                return $this->redirect($this->Auth->redirect());
+        
+        if ($this->request->is('post')) {         
+            $userdata = $this->User->find('all',array('conditions'=>array('username'=>$this->request->data['User']['username'],'password'=>  md5($this->request->data['User']['password']))));
+            if (!empty($userdata)) {
+                $this->Session->write('User',$this->request->data);
+                return $this->redirect(array('action' => 'index'));
             }
             $this->Session->setFlash(__('Invalid username or password, try again'));
         }
     }
 
     public function logout() {
-        return $this->redirect($this->Auth->logout());
+        $this->Session->delete('User');
+        return $this->redirect(array('action' => 'login'));
     }
-    
+ 
     public function index() {
+        $this->checkLogin();
+        if ($this->checkLogin()) {
+            return $this->redirect(array('action' => 'login'));
+        }
         $this->User->recursive = 0;
         $this->set('users', $this->paginate());
     }
 
     public function view($id = null) {
+        if ($this->checkLogin()) {
+            return $this->redirect(array('action' => 'login'));
+        }
         $this->User->id = $id;
         if (!$this->User->exists()) {
             throw new NotFoundException(__('Invalid user'));
@@ -35,6 +40,9 @@ class UsersController extends AppController {
     }
 
     public function add() {
+//        if ($this->checkLogin()) {
+//            return $this->redirect(array('action' => 'login'));
+//        }
         if ($this->request->is('post')) {
             $this->User->create();
             if ($this->User->save($this->request->data)) {
@@ -48,6 +56,9 @@ class UsersController extends AppController {
     }
 
     public function edit($id = null) {
+        if ($this->checkLogin()) {
+            return $this->redirect(array('action' => 'login'));
+        }
         $this->User->id = $id;
         if (!$this->User->exists()) {
             throw new NotFoundException(__('Invalid user'));
@@ -67,6 +78,9 @@ class UsersController extends AppController {
     }
 
     public function delete($id = null) {
+        if ($this->checkLogin()) {
+            return $this->redirect(array('action' => 'login'));
+        }
         $this->request->onlyAllow('post');
 
         $this->User->id = $id;
@@ -80,5 +94,4 @@ class UsersController extends AppController {
         $this->Session->setFlash(__('User was not deleted'));
         return $this->redirect(array('action' => 'index'));
     }
-
 }
